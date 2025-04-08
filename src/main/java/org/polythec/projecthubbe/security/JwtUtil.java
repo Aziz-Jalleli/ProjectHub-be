@@ -2,6 +2,7 @@ package org.polythec.projecthubbe.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -23,9 +24,7 @@ public class JwtUtil {
 
     private SecretKey secretKey;
 
-    public void initSecretKey() {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
-    }
+
 
     // Generate token for user
     public String generateToken(UserDetails userDetails) {
@@ -43,6 +42,10 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
+    @PostConstruct
+    public void initSecretKey() {
+        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    }
     // Extract expiration date from token
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);

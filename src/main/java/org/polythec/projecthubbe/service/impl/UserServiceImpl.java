@@ -1,4 +1,5 @@
 package org.polythec.projecthubbe.service.impl;
+
 import org.polythec.projecthubbe.exception.EmailAlreadyExistsException;
 import org.polythec.projecthubbe.exception.UserNotFoundException;
 import org.polythec.projecthubbe.entity.User;
@@ -31,8 +32,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new EmailAlreadyExistsException("Email " + user.getEmail() + " already exists");
         }
+        user.setEmail(user.getEmail());
+
+        user.setFirstName(user.getFirstName().trim());
+        user.setLastName(user.getLastName().trim());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getStatus() == null) {
+            user.setStatus("active");
+        }
+        if (user.getTimezone() == null) {
+            user.setTimezone("UTC");
+        }
+        if (user.getIsVerified() == null) {
+            user.setIsVerified(false);
+        }
         return userRepository.save(user);
     }
 

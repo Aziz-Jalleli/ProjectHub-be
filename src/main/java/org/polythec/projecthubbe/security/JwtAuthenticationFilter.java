@@ -30,9 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authorizationHeader = request.getHeader("Authorization");
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7);
+            String token = authorizationHeader.substring(7).trim(); // remove any accidental space
 
-            if (jwtUtil.isTokenValid(token)) {
+            // Ensure token has at least 2 dots: header.payload.signature
+            if (token.split("\\.").length == 3 && jwtUtil.isTokenValid(token)) {
                 String username = jwtUtil.extractUsername(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -41,9 +42,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new JwtAuthenticationToken(userDetails, null, userDetails.getAuthorities())
                     );
                 }
+            } else {
+                System.err.println("Invalid JWT format or failed validation.");
+
+
             }
+            System.out.println("Received JWT: " + token);
         }
+
 
         filterChain.doFilter(request, response);
     }
+
 }

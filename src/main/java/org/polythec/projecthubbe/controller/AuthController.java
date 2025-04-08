@@ -36,7 +36,9 @@ public class AuthController {
             User createdUser = userService.createUser(user);
             UserDetails userDetails = userService.loadUserByUsername(createdUser.getEmail());
             String token = jwtUtil.generateToken(userDetails);
+            System.out.println(user.toString());
             return ResponseEntity.ok(new AuthResponse(token));
+
         } catch (EmailAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -54,6 +56,7 @@ public class AuthController {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String token = jwtUtil.generateToken(userDetails);
+        System.out.println("token : "+token);
         userService.updateLastLogin(userDetails.getUsername());
         return ResponseEntity.ok(new AuthResponse(token));
     }
