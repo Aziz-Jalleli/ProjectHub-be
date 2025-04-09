@@ -1,5 +1,6 @@
 package org.polythec.projecthubbe.controller;
 
+import jakarta.validation.Valid;
 import org.polythec.projecthubbe.security.JwtUtil;
 import org.polythec.projecthubbe.exception.*;
 import org.polythec.projecthubbe.entity.User;
@@ -11,7 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -29,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
         try {
             User createdUser = userService.createUser(user);
             UserDetails userDetails = userService.loadUserByUsername(createdUser.getEmail());
