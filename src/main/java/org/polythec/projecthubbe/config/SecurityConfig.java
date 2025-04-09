@@ -50,5 +50,5 @@ public class SecurityConfig {
         return authConfig.getAuthenticationManager();
     }
 
-    // Removed passwordEncoder() bean
+
 }

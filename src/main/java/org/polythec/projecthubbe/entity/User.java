@@ -61,6 +61,10 @@ public class User implements UserDetails{
         return this.email; // assuming email is your login
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
     @Override
     public boolean isAccountNonExpired() { return true; }
 

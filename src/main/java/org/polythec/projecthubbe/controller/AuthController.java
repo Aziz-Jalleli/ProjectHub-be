@@ -58,6 +58,12 @@ public class AuthController {
         userService.updateLastLogin(userDetails.getUsername());
         return ResponseEntity.ok(new AuthResponse(token));
     }
+    @GetMapping("/me")
+    public User getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+
+        return userService.getUserByEmail(email);
+    }
 
     // DTO Classes
     private static class AuthRequest {
