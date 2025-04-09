@@ -34,8 +34,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         user.setEmail(user.getEmail());
 
-        user.setFirstName(user.getFirstName().trim());
-        user.setLastName(user.getLastName().trim());
+        /*user.setFirstName(user.getFirstName().trim());
+        user.setLastName(user.getLastName().trim());*/
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (user.getStatus() == null) {
@@ -47,6 +47,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (user.getIsVerified() == null) {
             user.setIsVerified(false);
         }
+        if (user.getFirstName() != null) {
+            user.setFirstName(user.getFirstName().trim());
+        }
+
+        if (user.getLastName() != null) {
+            user.setLastName(user.getLastName().trim());
+        }
+
         return userRepository.save(user);
     }
 

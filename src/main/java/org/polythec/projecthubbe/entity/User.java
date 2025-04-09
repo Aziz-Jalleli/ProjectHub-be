@@ -1,4 +1,5 @@
 package org.polythec.projecthubbe.entity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -19,9 +20,11 @@ public class User implements UserDetails{
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @JsonProperty("first_name")
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    @JsonProperty("last_name")
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
@@ -42,6 +45,7 @@ public class User implements UserDetails{
 
     @Column(nullable = false)
     private String status;
+
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
