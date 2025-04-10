@@ -62,8 +62,8 @@ public class AuthController {
     @GetMapping("/me")
     public User getCurrentUser(Authentication authentication) {
         String email = authentication.getName();
-
-        return userService.getUserByEmail(email);
+        User currentUser = userService.getUserByEmail(email);
+        return currentUser;
     }
 
     // DTO Classes

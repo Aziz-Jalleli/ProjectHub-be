@@ -1,5 +1,7 @@
 package org.polythec.projecthubbe.entity;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,6 +51,7 @@ public class User implements UserDetails{
 
     @Column(nullable = false)
     private String status;
+
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
