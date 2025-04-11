@@ -5,6 +5,7 @@ import org.polythec.projecthubbe.security.JwtUtil;
 import org.polythec.projecthubbe.exception.*;
 import org.polythec.projecthubbe.entity.User;
 import org.polythec.projecthubbe.service.UserService;
+import org.polythec.projecthubbe.service.impl.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,13 +21,16 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final UserServiceImpl userServiceImpl;
+
 
     public AuthController(AuthenticationManager authenticationManager,
                           UserService userService,
-                          JwtUtil jwtUtil) {
+                          JwtUtil jwtUtil, UserServiceImpl userServiceImpl) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
+        this.userServiceImpl = userServiceImpl;
     }
 
     @PostMapping("/register")
@@ -59,13 +63,15 @@ public class AuthController {
         userService.updateLastLogin(userDetails.getUsername());
         return ResponseEntity.ok(new AuthResponse(token));
     }
-    @GetMapping("/me")
-    public User getCurrentUser(Authentication authentication) {
-        String email = authentication.getName();
-        User currentUser = userService.getUserByEmail(email);
-        return currentUser;
-    }
 
+
+    @GetMapping("/me")
+    public ResponseEntity<User> getCurrentUser() {
+        User user = userServiceImpl.getCurrentlyAuthenticatedUser();
+        return ResponseEntity.ok(user);
+
+
+    }
     // DTO Classes
     private static class AuthRequest {
         private String email;

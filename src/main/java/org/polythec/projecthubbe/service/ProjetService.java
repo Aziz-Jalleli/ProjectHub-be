@@ -5,6 +5,8 @@ import org.polythec.projecthubbe.entity.Projet;
 import org.polythec.projecthubbe.entity.User;
 import org.polythec.projecthubbe.repository.ProjetRepository;
 import org.polythec.projecthubbe.repository.UserRepository;
+import org.polythec.projecthubbe.service.impl.UserServiceImpl;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,12 @@ public class ProjetService {
 
     private final ProjetRepository projetRepository;
     private final UserRepository userRepository;
+    private final UserServiceImpl userService;
+
+    public List<Projet> getProjectsByOwnerEmail(String email) {
+        return projetRepository.findByOwner_Email(email);
+    }
+
 
     public Projet createProject(Projet projet) {
         return projetRepository.save(projet);
@@ -42,10 +50,19 @@ public class ProjetService {
         throw new IllegalArgumentException("Project or User not found");
     }
 
-    public void deleteProject(Long id) {
-        projetRepository.deleteById(id);
-    }
+    public void deleteProject(Long projectId) {
+        Projet projet = projetRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
 
+        User currentUser = userService.getCurrentlyAuthenticatedUser();
+
+        // Compare String IDs
+        if (!projet.getOwner().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("Only the owner can delete this project");
+        }
+
+        projetRepository.delete(projet);
+    }
     public Optional<Projet> getProjectById(Long id) {
         return projetRepository.findById(id);
     }
