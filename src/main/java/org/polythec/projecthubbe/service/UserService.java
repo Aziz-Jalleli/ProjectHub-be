@@ -19,4 +19,6 @@ public interface UserService {
     List<User> getUsersByStatus(String status);
     List<User> getVerifiedUsers(boolean isVerified);
     UserDetails loadUserByUsername(String email);
+    User getCurrentlyAuthenticatedUser();
+
 }

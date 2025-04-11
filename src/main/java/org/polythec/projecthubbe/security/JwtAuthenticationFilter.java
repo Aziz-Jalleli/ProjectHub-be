@@ -1,12 +1,15 @@
 package org.polythec.projecthubbe.security;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -28,30 +31,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authorizationHeader = request.getHeader("Authorization");
+        String token = null;
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String token = authorizationHeader.substring(7).trim(); // remove any accidental space
+            token = authorizationHeader.substring(7).trim();
+        }
 
-            // Ensure token has at least 2 dots: header.payload.signature
-            if (token.split("\\.").length == 3 && jwtUtil.isTokenValid(token)) {
+        if (token != null) {
+            try {
+                if (token.split("\\.").length != 3) {
+                    throw new JwtException("Invalid JWT structure");
+                }
+
+                if (!jwtUtil.isTokenValid(token)) {
+                    throw new JwtException("Invalid JWT signature");
+                }
+
                 String username = jwtUtil.extractUsername(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                if (userDetails != null) {
-                    SecurityContextHolder.getContext().setAuthentication(
-                            new JwtAuthenticationToken(userDetails, null, userDetails.getAuthorities())
-                    );
-                }
-            } else {
-                System.err.println("Invalid JWT format or failed validation.");
+                SecurityContextHolder.getContext().setAuthentication(
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        )
+                );
 
-
+            } catch (JwtException | UsernameNotFoundException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
+                return; // Block invalid requests
             }
-            System.out.println("Received JWT: " + token);
         }
-
 
         filterChain.doFilter(request, response);
     }
-
+    private String getTokenFromRequest(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
+    }
 }
