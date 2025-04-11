@@ -64,10 +64,13 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
+
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
         User user = userServiceImpl.getCurrentlyAuthenticatedUser();
         return ResponseEntity.ok(user);
+
+
     }
     // DTO Classes
     private static class AuthRequest {
