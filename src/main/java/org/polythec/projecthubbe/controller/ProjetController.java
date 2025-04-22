@@ -41,13 +41,13 @@ public class ProjetController {
         return ResponseEntity.ok(projetService.getProjectsByOwner(userId));
     }
 
+
     @PutMapping("/{projectId}/add-member/{userId}")
     public ResponseEntity<Projet> addMemberToProject(
             @PathVariable Long projectId,
-            @PathVariable String userId) {
+            @PathVariable String userId) {  // Keep as String
         return ResponseEntity.ok(projetService.addMember(projectId, userId));
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projetService.deleteProject(id);

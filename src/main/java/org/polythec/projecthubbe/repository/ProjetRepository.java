@@ -17,4 +17,6 @@ public interface ProjetRepository extends JpaRepository<Projet, Long> {
     // Optional: Search projects by name
     List<Projet> findByNomContainingIgnoreCase(String nom);
 
+    List<Projet> findByOwner_Email(String email);
+
 }
