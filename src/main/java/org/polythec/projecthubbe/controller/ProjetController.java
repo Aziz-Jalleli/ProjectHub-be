@@ -41,6 +41,15 @@ public class ProjetController {
         return ResponseEntity.ok(projetService.getProjectsByOwner(userId));
     }
 
+    @PostMapping("/{projectId}/members")
+    public ResponseEntity<?> addUserToProject(
+            @PathVariable Long projectId,
+            @RequestParam String userId,
+            @RequestParam String role
+    ) {
+        projetService.addUserToProject(projectId, userId, role);
+        return ResponseEntity.ok("User added to project with role: " + role);
+    }
 
     @PutMapping("/{projectId}/add-member/{userId}")
     public ResponseEntity<Projet> addMemberToProject(

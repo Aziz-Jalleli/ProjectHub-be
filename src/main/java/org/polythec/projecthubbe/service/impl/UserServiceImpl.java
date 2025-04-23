@@ -158,6 +158,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
+    @Override
+    public void updateProfilePicture(String email, String publicId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setCloudinaryPublicId(publicId);
+        userRepository.save(user);
+    }
 
 
 }

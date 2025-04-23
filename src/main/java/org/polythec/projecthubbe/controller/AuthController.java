@@ -1,17 +1,26 @@
 package org.polythec.projecthubbe.controller;
 
 import jakarta.validation.Valid;
+import org.polythec.projecthubbe.repository.CloudinaryUploadResult;
 import org.polythec.projecthubbe.security.JwtUtil;
 import org.polythec.projecthubbe.exception.*;
 import org.polythec.projecthubbe.entity.User;
+import org.polythec.projecthubbe.service.CloudinaryService;
 import org.polythec.projecthubbe.service.UserService;
 import org.polythec.projecthubbe.service.impl.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.security.Principal;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -64,7 +73,7 @@ public class AuthController {
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
         User user = userServiceImpl.getCurrentlyAuthenticatedUser();
@@ -72,6 +81,54 @@ public class AuthController {
 
 
     }
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", methods = {RequestMethod.PUT})
+    @PutMapping("/update-profile-image")
+    public ResponseEntity<?> updateProfileImage(
+            @RequestParam("image") MultipartFile image,
+            Principal principal
+    ) {
+        try {
+            // 1. Upload to Cloudinary
+            CloudinaryUploadResult uploadResult = cloudinaryService.uploadFile(image);
+
+            // 2. Get public ID and secure URL
+            String publicId = uploadResult.getPublicId();
+            String secureUrl = uploadResult.getSecureUrl();
+
+            // 3. Update user in database with public ID
+            userService.updateProfilePicture(principal.getName(), publicId);
+
+            return ResponseEntity.ok().body(Map.of(
+                    "message", "Profile picture updated",
+                    "url", secureUrl,
+                    "publicId", publicId
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Image upload failed: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUser(@RequestBody User updatedUser, Principal principal) {
+        try {
+            // Get currently authenticated user's ID using their email from the JWT
+            User currentUser = userServiceImpl.getCurrentlyAuthenticatedUser();
+            User updated = userService.updateUser(currentUser.getId(), updatedUser);
+            if (updatedUser.getProfilePicture() != null) {
+                currentUser.setProfilePicture(updatedUser.getProfilePicture());
+            }
+            return ResponseEntity.ok(updated);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
+
+
+
     // DTO Classes
     private static class AuthRequest {
         private String email;
