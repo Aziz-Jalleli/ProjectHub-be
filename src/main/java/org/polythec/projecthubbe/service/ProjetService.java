@@ -1,8 +1,12 @@
 package org.polythec.projecthubbe.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.polythec.projecthubbe.entity.ProjectMember;
+import org.polythec.projecthubbe.entity.ProjectMemberId;
 import org.polythec.projecthubbe.entity.Projet;
 import org.polythec.projecthubbe.entity.User;
+import org.polythec.projecthubbe.repository.ProjectMemberRepository;
 import org.polythec.projecthubbe.repository.ProjetRepository;
 import org.polythec.projecthubbe.repository.UserRepository;
 import org.polythec.projecthubbe.service.impl.UserServiceImpl;
@@ -65,5 +69,29 @@ public class ProjetService {
     }
     public Optional<Projet> getProjectById(Long id) {
         return projetRepository.findById(id);
+    }
+    private final ProjectMemberRepository projectMemberRepository;
+
+    @Transactional
+    public void addUserToProject(Long projectId, String userId, String role) {
+        Projet project = projetRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        ProjectMemberId pmId = new ProjectMemberId(projectId, userId);
+
+        // ✅ This line is correct
+        if (projectMemberRepository.existsById(pmId)) {
+            throw new RuntimeException("User is already a member of the project");
+        }
+
+        ProjectMember member = new ProjectMember();
+        member.setId(pmId);
+        member.setProject(project);
+        member.setUser(user);
+        member.setRole(role);
+
+        projectMemberRepository.save(member);
     }
 }
