@@ -62,4 +62,5 @@ public class ProjetController {
         projetService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
+
 }

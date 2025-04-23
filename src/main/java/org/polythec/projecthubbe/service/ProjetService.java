@@ -10,6 +10,7 @@ import org.polythec.projecthubbe.repository.ProjectMemberRepository;
 import org.polythec.projecthubbe.repository.ProjetRepository;
 import org.polythec.projecthubbe.repository.UserRepository;
 import org.polythec.projecthubbe.service.impl.UserServiceImpl;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -74,24 +75,38 @@ public class ProjetService {
 
     @Transactional
     public void addUserToProject(Long projectId, String userId, String role) {
+        // Find the project
         Projet project = projetRepository.findById(projectId)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        // Find the user
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-        ProjectMemberId pmId = new ProjectMemberId(projectId, userId);
+        // Check if the user is already a member
+        Optional<ProjectMember> existingMembership = projectMemberRepository.findByProjectIdprojetAndUserIdEquals(projectId, userId);
 
-        // ✅ This line is correct
-        if (projectMemberRepository.existsById(pmId)) {
-            throw new RuntimeException("User is already a member of the project");
+        if (existingMembership.isPresent()) {
+            // Update role if the member already exists
+            ProjectMember member = existingMembership.get();
+            member.setRole(role);
+            projectMemberRepository.saveAndFlush(member);
+        } else {
+            // Create new project membership
+            ProjectMember projectMember = new ProjectMember();
+            ProjectMemberId memberId = new ProjectMemberId(projectId, userId);
+
+            projectMember.setId(memberId);
+            projectMember.setProject(project);
+            projectMember.setUser(user);
+            projectMember.setRole(role);
+
+            // Save the membership
+            projectMemberRepository.saveAndFlush(projectMember);
+
+            // Update the collections on both sides for better consistency
+            project.getProjectMembers().add(projectMember);
+            project.getMembers().add(user);
         }
-
-        ProjectMember member = new ProjectMember();
-        member.setId(pmId);
-        member.setProject(project);
-        member.setUser(user);
-        member.setRole(role);
-
-        projectMemberRepository.save(member);
     }
 }
