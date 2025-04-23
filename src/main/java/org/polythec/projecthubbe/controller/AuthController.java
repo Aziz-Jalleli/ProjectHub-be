@@ -66,6 +66,7 @@ public class AuthController {
         return currentUser;
     }
 
+
     // DTO Classes
     private static class AuthRequest {
         private String email;

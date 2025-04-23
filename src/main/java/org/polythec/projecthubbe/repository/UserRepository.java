@@ -2,6 +2,8 @@ package org.polythec.projecthubbe.repository;
 
 import org.polythec.projecthubbe.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +42,8 @@ public interface UserRepository extends JpaRepository<User, String> {
      * @return a list of users with the specified status
      */
     List<User> findByStatus(String status);
+    @Query("SELECT u FROM User u WHERE " +
+            "LOWER(u.email) LIKE LOWER(CONCAT('%', :email, '%')) OR " +
+            "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<User> findByEmailContainingIgnoreCaseOrNameContainingIgnoreCase(@Param("email") String email, @Param("name") String name);
 }

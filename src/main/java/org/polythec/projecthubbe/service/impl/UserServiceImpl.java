@@ -5,6 +5,7 @@ import org.polythec.projecthubbe.exception.UserNotFoundException;
 import org.polythec.projecthubbe.entity.User;
 import org.polythec.projecthubbe.repository.UserRepository;
 import org.polythec.projecthubbe.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -73,6 +74,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
     }
+    @Override
+    public List<User> searchUsersByEmailOrName(String keyword) {
+        return userRepository.findByEmailContainingIgnoreCaseOrNameContainingIgnoreCase(keyword, keyword);
+    }
+
 
     @Override
     public User updateUser(String userId, User userDetails) throws UserNotFoundException {

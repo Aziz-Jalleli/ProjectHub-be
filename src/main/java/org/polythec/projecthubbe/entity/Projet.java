@@ -38,6 +38,7 @@ public class Projet {
             name = "project_members",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
+
     )
     private Set<User> members = new HashSet<>();
 
