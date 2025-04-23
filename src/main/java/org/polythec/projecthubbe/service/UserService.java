@@ -22,4 +22,5 @@ public interface UserService {
     UserDetails loadUserByUsername(String email);
     User getCurrentlyAuthenticatedUser();
 
+    void updateProfilePicture(String email, String imageUrl);
 }

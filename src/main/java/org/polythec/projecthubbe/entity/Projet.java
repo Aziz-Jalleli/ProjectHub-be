@@ -42,6 +42,11 @@ public class Projet {
     )
     private Set<User> members = new HashSet<>();
 
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectMember> projectMembers = new HashSet<>();
+
+
     @PrePersist
     protected void onCreate() {
         createdDate = LocalDateTime.now();
@@ -55,4 +60,14 @@ public class Projet {
     public void removeMember(User user) {
         members.remove(user);
     }
+
+    public void addMemberPerProject(User user, String role) {
+        ProjectMember pm = new ProjectMember();
+        pm.setProject(this);
+        pm.setUser(user);
+        pm.setRole(role);
+        pm.setId(new ProjectMemberId(this.idprojet, user.getId()));
+        projectMembers.add(pm);
+    }
+
 }

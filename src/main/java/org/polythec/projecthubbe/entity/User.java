@@ -7,7 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -36,7 +38,8 @@ public class User implements UserDetails{
 
     @Column(nullable = false, unique = true)
     private String email;
-
+    @Column(name = "cloudinary_public_id")
+    private String cloudinaryPublicId;
     @Column(nullable = false)
     private String password;  // Hashed password
 
@@ -68,6 +71,9 @@ public class User implements UserDetails{
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(); // or return roles if you have them
     }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectMember> projectMemberships = new HashSet<>();
+
 
     @Override
     public String getUsername() {
