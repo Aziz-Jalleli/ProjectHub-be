@@ -4,6 +4,8 @@ import org.polythec.projecthubbe.entity.ProjectMember;
 import org.polythec.projecthubbe.entity.Projet;
 import org.polythec.projecthubbe.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,5 +22,7 @@ public interface ProjetRepository extends JpaRepository<Projet, Long> {
     List<Projet> findByNomContainingIgnoreCase(String nom);
 
     List<Projet> findByOwner_Email(String email);
+    @Query("SELECT p FROM Projet p WHERE p.owner.id = :ownerId")
+    List<Projet> findProjectsByOwnerId(@Param("ownerId") String ownerId);
 
 }
