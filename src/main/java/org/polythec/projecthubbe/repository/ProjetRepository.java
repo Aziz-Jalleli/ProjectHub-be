@@ -25,4 +25,6 @@ public interface ProjetRepository extends JpaRepository<Projet, Long> {
     @Query("SELECT p FROM Projet p WHERE p.owner.id = :ownerId")
     List<Projet> findProjectsByOwnerId(@Param("ownerId") String ownerId);
 
+
+
 }

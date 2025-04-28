@@ -36,6 +36,15 @@ public class ProjetController {
         return ResponseEntity.ok(projetService.createProject(projet));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Projet> updateProject(
+            @PathVariable Long id,
+            @RequestBody Projet projetDetails
+    ) {
+        Projet updatedProjet = projetService.updateProject(id, projetDetails);
+        return ResponseEntity.ok(updatedProjet);
+    }
+
 
     @JsonIgnore
     @GetMapping("/allprojects")
