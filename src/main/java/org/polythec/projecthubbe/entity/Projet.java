@@ -1,5 +1,6 @@
 package org.polythec.projecthubbe.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ public class Projet {
             inverseJoinColumns = @JoinColumn(name = "user_id")
 
     )
+
     private Set<User> members = new HashSet<>();
 
 

@@ -1,11 +1,16 @@
 package org.polythec.projecthubbe.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.polythec.projecthubbe.dto.ProjetDTO;
 import org.polythec.projecthubbe.entity.ProjectMember;
 import org.polythec.projecthubbe.entity.ProjectMemberId;
 import org.polythec.projecthubbe.entity.Projet;
 import org.polythec.projecthubbe.entity.User;
+import org.polythec.projecthubbe.mapper.ProjetMapper;
 import org.polythec.projecthubbe.repository.ProjectMemberRepository;
 import org.polythec.projecthubbe.repository.ProjetRepository;
 import org.polythec.projecthubbe.repository.UserRepository;
@@ -14,6 +19,7 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +30,9 @@ public class ProjetService {
     private final ProjetRepository projetRepository;
     private final UserRepository userRepository;
     private final UserServiceImpl userService;
+    private final ProjetMapper projetMapper;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public List<Projet> getProjectsByOwnerEmail(String email) {
         return projetRepository.findByOwner_Email(email);
@@ -38,9 +47,9 @@ public class ProjetService {
         return projetRepository.findAll();
     }
 
-    public List<Projet> getProjectsByOwner(String userId) {
-        Optional<User> owner = userRepository.findById(userId);
-        return owner.map(projetRepository::findByOwner).orElse(List.of());
+    public List<ProjetDTO> getProjectsByOwner(String userId) {
+        List<Projet> projets = projetRepository.findProjectsByOwnerId(userId);
+        return projetMapper.toDtoList(projets);
     }
 
     public Projet addMember(Long projectId, String userId) {
@@ -107,8 +116,23 @@ public class ProjetService {
             // Update the collections on both sides for better consistency
             project.getProjectMembers().add(projectMember);
             project.getMembers().add(user);
+            projetRepository.saveAndFlush(project);
+            entityManager.clear();
         }
     }
+    public List<ProjectMember> getMembersByProjectId(Long projectId) {
+        return projectMemberRepository.findByIdProjectId(projectId);
+    }
+    @Transactional
+    public void deleteMemberFromProject(Long projectId, String userId) {
+        if (!projectMemberRepository.existsById(new ProjectMemberId(projectId, userId))) {
+            throw new EntityNotFoundException("Member with userId " + userId + " not found in project " + projectId);
+        }
+        projectMemberRepository.deleteByIdProjectIdAndIdUserId(projectId, userId);
+    }
+
+
+
 
     public Projet updateProject(Long id, Projet projetDetails) {
         Projet existingProjet = projetRepository.findById(id)

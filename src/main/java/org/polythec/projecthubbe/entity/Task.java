@@ -3,6 +3,8 @@ package org.polythec.projecthubbe.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
@@ -11,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Task {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,10 +23,10 @@ public class Task {
     @Column(nullable = false)
     private String type;
 
-    @Column(name = "start_date")  // Map to start_date in the table
+    @Column(name = "start_date")
     private LocalDateTime startDate;
 
-    @Column(name = "end_date")    // Map to end_date in the table
+    @Column(name = "end_date")
     private LocalDateTime endDate;
 
     @Column(length = 1000)
@@ -40,6 +41,30 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idprojet", nullable = false)
     private Projet project;
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_priorities",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "priority_id")
+    )
+    private Set<Priority> priorities = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_id")
+    private Status status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "priority_id")
+    private Priority priority;
+
+    @ManyToMany
+    @JoinTable(
+            name = "assignees",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> assignees = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
