@@ -10,6 +10,7 @@ public interface UserService {
     User createUser(User user) throws EmailAlreadyExistsException;
     User getUserById(String id) throws UserNotFoundException;
     User getUserByEmail(String email) throws UserNotFoundException;
+    List<User> searchUsersByEmailOrName(String keyword);
     User updateUser(String userId, User userDetails) throws UserNotFoundException;
     void deleteUser(String userId) throws UserNotFoundException;
     void updateLastLogin(String email) throws UserNotFoundException;

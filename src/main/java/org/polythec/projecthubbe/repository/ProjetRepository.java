@@ -1,10 +1,12 @@
 package org.polythec.projecthubbe.repository;
 
+import org.polythec.projecthubbe.entity.ProjectMember;
 import org.polythec.projecthubbe.entity.Projet;
 import org.polythec.projecthubbe.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProjetRepository extends JpaRepository<Projet, Long> {
 

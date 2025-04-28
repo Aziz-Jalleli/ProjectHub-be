@@ -67,6 +67,9 @@ public class User implements UserDetails{
 
     @Column(name = "is_verified")
     private Boolean isVerified;
+
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(); // or return roles if you have them
