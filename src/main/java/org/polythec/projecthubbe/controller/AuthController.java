@@ -111,16 +111,14 @@ public class AuthController {
                     .body("Image upload failed: " + e.getMessage());
         }
     }
-
+    @PreAuthorize("isAuthenticated()") // Add this annotation
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestBody User updatedUser, Principal principal) {
         try {
             // Get currently authenticated user's ID using their email from the JWT
             User currentUser = userServiceImpl.getCurrentlyAuthenticatedUser();
             User updated = userService.updateUser(currentUser.getId(), updatedUser);
-            if (updatedUser.getProfilePicture() != null) {
-                currentUser.setProfilePicture(updatedUser.getProfilePicture());
-            }
+
             return ResponseEntity.ok(updated);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
