@@ -109,4 +109,26 @@ public class ProjetService {
             project.getMembers().add(user);
         }
     }
+
+    public Projet updateProject(Long id, Projet projetDetails) {
+        Projet existingProjet = projetRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+
+        // Update only non-null fields
+        if (projetDetails.getNom() != null && !projetDetails.getNom().isBlank()) {
+            existingProjet.setNom(projetDetails.getNom().trim());
+        }
+
+        if (projetDetails.getDescription() != null) {
+            existingProjet.setDescription(projetDetails.getDescription().trim());
+        }
+
+        // Add owner validation if needed
+        User currentUser = userService.getCurrentlyAuthenticatedUser();
+        if (!existingProjet.getOwner().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("Only the owner can update this project");
+        }
+
+        return projetRepository.save(existingProjet);
+    }
 }

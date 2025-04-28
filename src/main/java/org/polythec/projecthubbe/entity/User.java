@@ -1,5 +1,6 @@
 package org.polythec.projecthubbe.entity;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,10 +30,12 @@ public class User implements UserDetails{
 
 
     @JsonProperty("first_name")
+    @JsonAlias("firstName")
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
     @JsonProperty("last_name")
+    @JsonAlias("lastName")
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
