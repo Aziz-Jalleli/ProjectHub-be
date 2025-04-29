@@ -13,6 +13,7 @@ import org.polythec.projecthubbe.service.ProjetService;
 import org.polythec.projecthubbe.service.UserService;
 import org.polythec.projecthubbe.service.impl.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -109,6 +110,12 @@ public class ProjetController {
         }
         return ResponseEntity.ok(project);
     }
-
+    @GetMapping("/member/my-projects")
+    public ResponseEntity<List<ProjetDTO>> getProjectsByCurrentMember() {
+        // Get the authenticated user's ID directly
+        User currentUser = userServiceImpl.getCurrentlyAuthenticatedUser();
+        List<ProjetDTO> projects = projetService.getProjectsByMember(currentUser.getId());
+        return ResponseEntity.ok(projects);
+    }
 
 }

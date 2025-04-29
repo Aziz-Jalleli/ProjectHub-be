@@ -1,12 +1,28 @@
 package org.polythec.projecthubbe.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserDTO {
     private String id;
     private String email;
+    @JsonProperty("first_name") // Add this annotation
     private String firstName;
+    @JsonProperty("last_name") // Add this annotation
+
     private String lastName;
     private String profilePicture;
     private String role;
+    private String cloudinaryPublicId; // Add this field
+
+    // Add getter and setter
+    public String getCloudinaryPublicId() {
+        return cloudinaryPublicId;
+    }
+
+    public void setCloudinaryPublicId(String cloudinaryPublicId) {
+        this.cloudinaryPublicId = cloudinaryPublicId;
+    }
+
 
     public String getRole() {
         return role;
