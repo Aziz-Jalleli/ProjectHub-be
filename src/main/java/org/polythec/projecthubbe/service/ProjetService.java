@@ -155,4 +155,13 @@ public class ProjetService {
 
         return projetRepository.save(existingProjet);
     }
+
+
+    // ProjetService.java
+    public List<ProjetDTO> getProjectsByMember(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        List<Projet> projets = projetRepository.findByMembersContaining(user);
+        return projetMapper.toDtoList(projets);
+    }
 }
