@@ -77,6 +77,7 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getCurrentUser() {
+
         User user = userServiceImpl.getCurrentlyAuthenticatedUser();
 
         UserDTO userDTO = new UserDTO();
