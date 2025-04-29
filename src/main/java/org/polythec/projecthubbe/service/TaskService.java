@@ -19,6 +19,7 @@ public class TaskService {
     private final PriorityRepository priorityRepository;
     private final StatusRepository statusRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public Task createTask(Task task, Long priorityId, Long statusId) {
         if (priorityId != null) {
@@ -69,6 +70,12 @@ public class TaskService {
                         .orElseThrow(() -> new IllegalArgumentException("Status not found"));
                 task.setStatus(status);
             }
+            if (task.getStatus().getId() == 3) {
+                for (User assignee : task.getAssignees()) {
+                    notificationService.sendNotification(assignee, "Task \"" + task.getTitle() + "\" has been completed.");
+                }
+            }
+
 
             return taskRepository.save(task);
         }

@@ -1,5 +1,6 @@
 package org.polythec.projecthubbe.service.impl;
 
+import org.polythec.projecthubbe.dto.UserDTO;
 import org.polythec.projecthubbe.exception.EmailAlreadyExistsException;
 import org.polythec.projecthubbe.exception.UserNotFoundException;
 import org.polythec.projecthubbe.entity.User;
@@ -169,6 +170,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     }
+    public UserDTO getCurrentlyAuthenticatedUserDTO() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AuthenticationCredentialsNotFoundException("No authentication found");
+        }
+
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        return mapToDTO(user);
+    }
+
+    private UserDTO mapToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setProfilePicture(user.getProfilePicture());
+        return dto;
+    }
+
     @Override
     public void updateProfilePicture(String email, String publicId) {
         User user = userRepository.findByEmail(email)

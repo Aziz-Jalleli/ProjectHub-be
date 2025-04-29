@@ -1,6 +1,7 @@
 package org.polythec.projecthubbe.controller;
 
 import jakarta.validation.Valid;
+import org.polythec.projecthubbe.dto.UserDTO;
 import org.polythec.projecthubbe.repository.CloudinaryUploadResult;
 import org.polythec.projecthubbe.security.JwtUtil;
 import org.polythec.projecthubbe.exception.*;
@@ -75,8 +76,8 @@ public class AuthController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
-    public ResponseEntity<User> getCurrentUser() {
-        User user = userServiceImpl.getCurrentlyAuthenticatedUser();
+    public ResponseEntity<UserDTO> getCurrentUser() {
+        UserDTO user = userServiceImpl.getCurrentlyAuthenticatedUserDTO();
         return ResponseEntity.ok(user);
 
 
