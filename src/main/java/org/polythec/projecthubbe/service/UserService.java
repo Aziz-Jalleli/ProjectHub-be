@@ -21,6 +21,6 @@ public interface UserService {
     List<User> getVerifiedUsers(boolean isVerified);
     UserDetails loadUserByUsername(String email);
     User getCurrentlyAuthenticatedUser();
-
+    public void updateProfilePictureAndPublicId(String email, String url, String publicId);
     void updateProfilePicture(String email, String imageUrl);
 }

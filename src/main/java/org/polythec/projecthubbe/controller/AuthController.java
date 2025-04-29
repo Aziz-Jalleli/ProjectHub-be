@@ -1,6 +1,7 @@
 package org.polythec.projecthubbe.controller;
 
 import jakarta.validation.Valid;
+import org.polythec.projecthubbe.dto.UserDTO;
 import org.polythec.projecthubbe.repository.CloudinaryUploadResult;
 import org.polythec.projecthubbe.security.JwtUtil;
 import org.polythec.projecthubbe.exception.*;
@@ -75,31 +76,40 @@ public class AuthController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
-    public ResponseEntity<User> getCurrentUser() {
+    public ResponseEntity<UserDTO> getCurrentUser() {
         User user = userServiceImpl.getCurrentlyAuthenticatedUser();
-        return ResponseEntity.ok(user);
 
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(user.getId().toString()); // Assuming user.getId() is a Long
+        userDTO.setEmail(user.getEmail());
+        userDTO.setFirstName(user.getFirstName());
+        userDTO.setLastName(user.getLastName());
+        userDTO.setProfilePicture(user.getProfilePicture());
+        userDTO.setCloudinaryPublicId(user.getCloudinaryPublicId()); // Add this line
 
+        return ResponseEntity.ok(userDTO);
     }
     @Autowired
     private CloudinaryService cloudinaryService;
 
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", methods = {RequestMethod.PUT})
     @PutMapping("/update-profile-image")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> updateProfileImage(
             @RequestParam("image") MultipartFile image,
             Principal principal
     ) {
         try {
-            // 1. Upload to Cloudinary
             CloudinaryUploadResult uploadResult = cloudinaryService.uploadFile(image);
-
-            // 2. Get public ID and secure URL
             String publicId = uploadResult.getPublicId();
             String secureUrl = uploadResult.getSecureUrl();
 
-            // 3. Update user in database with public ID
-            userService.updateProfilePicture(principal.getName(), publicId);
+            // Update BOTH fields in the database
+            userService.updateProfilePictureAndPublicId(
+                    principal.getName(),
+                    secureUrl,
+                    publicId
+            );
 
             return ResponseEntity.ok().body(Map.of(
                     "message", "Profile picture updated",

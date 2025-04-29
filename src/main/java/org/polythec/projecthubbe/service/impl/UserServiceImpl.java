@@ -178,5 +178,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(user);
     }
 
-
+    public void updateProfilePictureAndPublicId(String email, String url, String publicId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setProfilePicture(url);
+        user.setCloudinaryPublicId(publicId);
+        userRepository.save(user);
+    }
 }
