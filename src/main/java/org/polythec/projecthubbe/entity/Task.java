@@ -58,12 +58,18 @@ public class Task {
     @JoinColumn(name = "priority_id")
     private Priority priority;
 
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Comment> comments = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
             name = "assignees",
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
+
     private Set<User> assignees = new HashSet<>();
 
     @PrePersist
@@ -75,5 +81,17 @@ public class Task {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    // Helper method to add a comment
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setTask(this);
+    }
+
+    // Helper method to remove a comment
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setTask(null);
     }
 }

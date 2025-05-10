@@ -78,17 +78,11 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getCurrentUser() {
 
-        User user = userServiceImpl.getCurrentlyAuthenticatedUser();
+        UserDTO user = userServiceImpl.getCurrentlyAuthenticatedUserDTO();
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(user.getId().toString()); // Assuming user.getId() is a Long
-        userDTO.setEmail(user.getEmail());
-        userDTO.setFirstName(user.getFirstName());
-        userDTO.setLastName(user.getLastName());
-        userDTO.setProfilePicture(user.getProfilePicture());
-        userDTO.setCloudinaryPublicId(user.getCloudinaryPublicId()); // Add this line
+         // Add this line
 
-        return ResponseEntity.ok(userDTO);
+        return ResponseEntity.ok(user);
     }
     @Autowired
     private CloudinaryService cloudinaryService;

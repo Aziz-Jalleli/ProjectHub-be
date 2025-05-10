@@ -26,5 +26,6 @@ public class ProjectMember {
     private User user;
 
     @Column(nullable = false)
-    private String role;  // e.g., "admin", "member"
+    private String role;
+    // e.g., "admin", "member"
 }

@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
-@PreAuthorize("isAuthenticated()") // Optional but helpful for debugging
 public class ProjetController {
 
     private final ProjetService projetService;
@@ -74,11 +73,14 @@ public class ProjetController {
             @PathVariable String userId) {  // Keep as String
         return ResponseEntity.ok(projetService.addMember(projectId, userId));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        projetService.deleteProject(id);
+        User loggedInUser = userServiceImpl.getCurrentlyAuthenticatedUser();
+        projetService.deleteProjectWithRelatedData(id, loggedInUser.getId());
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping(value = "/{projectId}/members", produces = "application/json")
     public List<ProjectMemberDTO> getMembers(@PathVariable Long projectId) {
         List<ProjectMember> members = projetService.getMembersByProjectId(projectId);
@@ -117,5 +119,4 @@ public class ProjetController {
         List<ProjetDTO> projects = projetService.getProjectsByMember(currentUser.getId());
         return ResponseEntity.ok(projects);
     }
-
 }
