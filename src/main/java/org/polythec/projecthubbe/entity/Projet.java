@@ -34,15 +34,7 @@ public class Projet {
     private User owner;
 
     // MEMBERS: Many users can be part of many projects
-    @ManyToMany
-    @JoinTable(
-            name = "project_members",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
 
-    )
-
-    private Set<User> members = new HashSet<>();
 
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -55,13 +47,7 @@ public class Projet {
     }
 
     // Add helper method to add members
-    public void addMember(User user) {
-        members.add(user);
-    }
 
-    public void removeMember(User user) {
-        members.remove(user);
-    }
 
     public void addMemberPerProject(User user, String role) {
         ProjectMember pm = new ProjectMember();

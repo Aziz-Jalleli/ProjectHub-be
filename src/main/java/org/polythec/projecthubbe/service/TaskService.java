@@ -1,13 +1,16 @@
 package org.polythec.projecthubbe.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.polythec.projecthubbe.entity.*;
 import org.polythec.projecthubbe.repository.*;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -20,6 +23,7 @@ public class TaskService {
     private final StatusRepository statusRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final ProjectMemberRepository projectMemberRepository;
 
     public Task createTask(Task task, Long priorityId, Long statusId) {
         if (priorityId != null) {
@@ -83,9 +87,59 @@ public class TaskService {
     }
 
 
-    public void deleteTask(Long id) {
+    @Transactional
+    public void deleteTask(Long id, String currentUserId) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
+
+        // Check if current user is the project owner
+        Projet project = task.getProject();
+        if (!Objects.equals(project.getOwner().getId(), currentUserId)) {
+            // Check if user is an admin of the project
+            Optional<ProjectMember> memberOptional = projectMemberRepository
+                    .findByProjectIdprojetAndUserId(project.getIdprojet(), currentUserId);
+
+            if (memberOptional.isEmpty() || !memberOptional.get().getRole().equalsIgnoreCase("Admin")) {
+                throw new AccessDeniedException("Only project owners or admins can delete tasks");
+            }
+        }
+
+        // Clear associations first
+        task.getAssignees().clear();
+        task.getPriorities().clear();
+        task.getComments().forEach(comment -> comment.setTask(null));
+        task.getComments().clear();
+        task.setStatus(null);
+        task.setPriority(null);
+
+        // Save changes before deleting
+        taskRepository.save(task);
+
+        // Now delete the task
         taskRepository.deleteById(id);
     }
+
+    // Simple deletion without permission checks (to be used internally)
+    @Transactional
+    public void deleteTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
+
+        // Clear associations first
+        task.getAssignees().clear();
+        task.getPriorities().clear();
+        task.getComments().forEach(comment -> comment.setTask(null));
+        task.getComments().clear();
+        task.setStatus(null);
+        task.setPriority(null);
+
+        // Save changes before deleting
+        taskRepository.save(task);
+
+        // Now delete the task
+        taskRepository.deleteById(id);
+    }
+
     @Transactional
     public Task assignUserToTask(Long taskId, String userId) {
         Task task = taskRepository.findById(taskId)

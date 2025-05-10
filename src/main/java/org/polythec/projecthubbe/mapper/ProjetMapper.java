@@ -35,14 +35,14 @@ public class ProjetMapper {
         }
 
         // Map members to set of UserSummaryDTO
-        if (projet.getMembers() != null) {
-            Set<UserSummaryDTO> memberDtos = projet.getMembers().stream()
+        if (projet.getProjectMembers() != null) {
+            Set<UserSummaryDTO> memberDtos = projet.getProjectMembers().stream()
                     .map(user -> {
                         UserSummaryDTO memberDto = new UserSummaryDTO();
-                        memberDto.setId(user.getId());
-                        memberDto.setFirstName(user.getFirstName());
-                        memberDto.setLastName(user.getLastName());
-                        memberDto.setEmail(user.getEmail());
+                        memberDto.setId(user.getUser().getId());
+                        memberDto.setFirstName(user.getUser().getFirstName());
+                        memberDto.setLastName(user.getUser().getLastName());
+                        memberDto.setEmail(user.getUser().getEmail());
                         return memberDto;
                     })
                     .collect(Collectors.toSet());

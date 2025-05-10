@@ -23,7 +23,7 @@ public class NotificationController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable String userId) {
+    public ResponseEntity<List<NotificationDTO>> getUserNotifications(@PathVariable String userId) {
         return ResponseEntity.ok(notificationService.getUserNotifications(userId));
     }
 

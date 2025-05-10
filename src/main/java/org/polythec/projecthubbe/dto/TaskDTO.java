@@ -1,8 +1,14 @@
 package org.polythec.projecthubbe.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
-import java.util.Set;@Data
+import java.util.Set;
+import java.util.stream.Collectors;
+
+@Data
 public class TaskDTO {
     private Long id;
     private String title;
@@ -23,6 +29,10 @@ public class TaskDTO {
     private String priorityName;
 
     private Set<UserSummaryDTO> assignees;
+    @Setter
+    @Getter
+    private Set<CommentDTO> comments;
+
 
     public TaskDTO(org.polythec.projecthubbe.entity.Task task) {
         this.id = task.getId();
@@ -55,7 +65,12 @@ public class TaskDTO {
                     .map(UserSummaryDTO::new) // Tu dois avoir un constructeur UserSummaryDTO(User user)
                     .collect(java.util.stream.Collectors.toSet());
         }
+        if (task.getComments() != null) {
+            this.comments = task.getComments().stream()
+                    .map(CommentDTO::new)
+                    .collect(Collectors.toSet());
+        }
     }
 
-} 
+}
 

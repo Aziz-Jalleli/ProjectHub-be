@@ -1,6 +1,7 @@
 package org.polythec.projecthubbe.service.impl;
 
 import org.polythec.projecthubbe.dto.UserDTO;
+import org.polythec.projecthubbe.dto.UserSummaryDTO;
 import org.polythec.projecthubbe.exception.EmailAlreadyExistsException;
 import org.polythec.projecthubbe.exception.UserNotFoundException;
 import org.polythec.projecthubbe.entity.User;
@@ -183,6 +184,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return mapToDTO(user);
     }
 
+    public UserSummaryDTO mapToSDTO(User user) {
+        UserSummaryDTO dto = new UserSummaryDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        return dto;
+    }
     private UserDTO mapToDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());

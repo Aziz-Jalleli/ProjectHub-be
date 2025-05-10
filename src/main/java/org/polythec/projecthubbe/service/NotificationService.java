@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +40,19 @@ public class NotificationService {
         return notification;
     }
 
-    public List<Notification> getUserNotifications(String userId) {
-        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
+    public List<NotificationDTO> getUserNotifications(String userId) {
+        List<Notification> notifications = notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
+        return notifications.stream()
+                .map(notification -> new NotificationDTO(
+                        notification.getMessage(),
+                        notification.getRecipient().getId(),
+                        notification.getIsRead(),// Ensure this value is included
+                        notification.getCreatedAt(),
+                        notification.getId()
+                ))
+                .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void markAsRead(Long notificationId) {
@@ -68,10 +79,7 @@ public class NotificationService {
         }
 
         // Send update notification
-        messagingTemplate.convertAndSend(
-                "/topic/notifications/" + userId,
-                new NotificationDTO("all_read", userId)
-        );
+
     }
 
     private NotificationDTO convertToDTO(Notification notification) {
@@ -79,6 +87,9 @@ public class NotificationService {
         dto.setRecipientId(notification.getRecipient().getId());
         dto.setMessage(notification.getMessage());
         dto.setRecipientId(notification.getRecipient().getId());
+        dto.setIsRead(notification.getIsRead());
+        dto.setCreatedAt(notification.getCreatedAt());
+        dto.setId(notification.getId());
 
 
         return dto;

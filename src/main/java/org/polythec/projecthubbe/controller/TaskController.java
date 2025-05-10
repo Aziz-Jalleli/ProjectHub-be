@@ -3,9 +3,15 @@ package org.polythec.projecthubbe.controller;
 import lombok.RequiredArgsConstructor;
 import org.polythec.projecthubbe.dto.TaskDTO;
 import org.polythec.projecthubbe.entity.Task;
+import org.polythec.projecthubbe.entity.User;
 import org.polythec.projecthubbe.service.TaskService;
+import org.polythec.projecthubbe.service.impl.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +24,7 @@ import java.util.stream.Collectors;
 public class TaskController {
 
     private final TaskService taskService;
+    private final UserServiceImpl userServiceImpl;
 
     @PostMapping("/create")
     public ResponseEntity<?> createTask(
@@ -66,10 +73,25 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        taskService.deleteTask(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteTask(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            // Get current user ID from authentication
+            User currentUser = userServiceImpl.getCurrentlyAuthenticatedUser();
+            String currentUserId = currentUser.getId();
+            // Delete task with permission check
+            taskService.deleteTask(id, currentUserId);
+            return ResponseEntity.noContent().build();
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body( e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
     }
+
     @PostMapping("/{taskId}/assignees/{userId}")
     public ResponseEntity<Task> assignUserToTask(
             @PathVariable Long taskId,
